@@ -83,14 +83,69 @@ class Network(object):
         nabla_b = [np.zeros(b.shape) for b in self.biases]
         nabla_w = [np.zeros(w.shape) for w in self.weights]
         # here's where we need to do matrices instead
+        mini_batch_inputs = []
+        mini_batch_expected_outputs = []
         for x, y in mini_batch:
-            delta_nabla_b, delta_nabla_w = self.backprop(x, y)
-            nabla_b = [nb+dnb for nb, dnb in zip(nabla_b, delta_nabla_b)]
-            nabla_w = [nw+dnw for nw, dnw in zip(nabla_w, delta_nabla_w)]
+            mini_batch_inputs.append(x)
+            # there is almost certainly a more declarative/pythony way to do this
+            mini_batch_expected_outputs.append(y)
+            # delta_nabla_b, delta_nabla_w = self.backprop(x, y)
+            # nabla_b = [nb+dnb for nb, dnb in zip(nabla_b, delta_nabla_b)]
+            # nabla_w = [nw+dnw for nw, dnw in zip(nabla_w, delta_nabla_w)]
+        # print 'inputs[5]', mini_batch_inputs[5]
+        # print 'outputs[5]', mini_batch_expected_outputs[5]
+
+        # I think I could decomp this in one line in python
+        forward_results = self.feedforward_mini_batch(mini_batch_inputs)
+        (nabla_b, nabla_w) = self.backprop_mini_batch(forward_results, mini_batch_expected_outputs)
+
         self.weights = [w-(eta/len(mini_batch))*nw
                         for w, nw in zip(self.weights, nabla_w)]
         self.biases = [b-(eta/len(mini_batch))*nb
                        for b, nb in zip(self.biases, nabla_b)]
+
+    def feedforward_mini_batch(self, mini_batch_inputs):
+        all_activations = []
+        all_zs = []
+        for x in mini_batch_inputs:
+            activation = x
+            activations = [x] # list to store all the activations, layer by layer
+            # presumably we're gonna push the activations for subsequent layers onto this array
+            zs = [] # list to store all the z vectors, layer by layer
+            for b, w in zip(self.biases, self.weights):
+                z = np.dot(w, activation)+b
+                zs.append(z)
+                activation = sigmoid(z)
+                activations.append(activation)
+            all_activations.append(activations)
+            all_zs.append(zs)
+        return (all_activations, all_zs)
+
+    def backprop_mini_batch(self, forward_results, mini_batch_expected_outputs):
+        batch_nabla_b = [np.zeros(b.shape) for b in self.biases]
+        batch_nabla_w = [np.zeros(w.shape) for w in self.weights]
+        for activations, zs in forward_results:
+            nabla_b = [np.zeros(b.shape) for b in self.biases]
+            nabla_w = [np.zeros(w.shape) for w in self.weights]
+            delta = self.cost_derivative(activations[-1], y) * \
+                sigmoid_prime(zs[-1])
+            nabla_b[-1] = delta
+            nabla_w[-1] = np.dot(delta, activations[-2].transpose())
+            # Note that the variable l in the loop below is used a little
+            # differently to the notation in Chapter 2 of the book.  Here,
+            # l = 1 means the last layer of neurons, l = 2 is the
+            # second-last layer, and so on.  It's a renumbering of the
+            # scheme in the book, used here to take advantage of the fact
+            # that Python can use negative indices in lists.
+            for l in xrange(2, self.num_layers):
+                z = zs[-l]
+                sp = sigmoid_prime(z)
+                delta = np.dot(self.weights[-l+1].transpose(), delta) * sp
+                nabla_b[-l] = delta
+                nabla_w[-l] = np.dot(delta, activations[-l-1].transpose())
+            batch_nabla_b = [bnb+nb for bnb, nb in zip(batch_nabla_b, nabla_b)]
+            batch_nabla_w = [bnw+nw for bnw, nw in zip(batch_nabla_w, nabla_w)]
+        return (batch_nabla_b, batch_nabla_w)
 
     def backprop(self, x, y):
         """Return a tuple ``(nabla_b, nabla_w)`` representing the
