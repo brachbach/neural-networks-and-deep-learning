@@ -1,0 +1,39 @@
+pseudocode for old approach:
+
+  for each (inputs, desired outputs) (i.e. piece of training data) in mini batch
+    find the deltas for weights and biases for that piece of data
+    apply them
+  (and then you apply the delta from the mini-batch as a whole to the current network)
+
+  to find the deltas for this mini-batch:
+    create matrices which will contain the deltas, zs, and activations
+    forward pass (layer by layer)
+    for last layer, figure out params that will be used in backwards pass
+    backwards pass (layer by layer)
+
+psuedocode for new approach:
+  
+  create (2 separate) matrices of all the expected inputs and expected outputs
+  (in some sense this is weird and the matrix should come prepackaged -- maybe look into actually doing this upstream. OTOH, it's not hard to put this together)
+
+  forward propagate (its own function):
+    create (2 separate) matrices to hold the activations and zs for each training example
+    iterate through the top level of the inputs
+      for each one, run the code that we already have, and then push the results onto the ur-matrices
+
+  back propogate
+    same basic idea as forward:
+    - pick out the proper forward results for that output
+    - run the code we already have over it
+    - grab the nabla-updating code from update_mini_batch
+
+
+
+  back propogate:
+
+  apply back propagation to update neural net (already in the existing code)
+
+
+Consider creating my own extremely simple data set for testing
+
+Consider actually setting up automated tests

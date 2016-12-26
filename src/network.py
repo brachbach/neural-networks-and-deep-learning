@@ -34,6 +34,12 @@ class Network(object):
         self.biases = [np.random.randn(y, 1) for y in sizes[1:]]
         self.weights = [np.random.randn(y, x)
                         for x, y in zip(sizes[:-1], sizes[1:])]
+        # print 'self.weights[0]', self.weights[0]
+        # print 'self.weights[1]', self.weights[1]
+        # print 'self.weights[2]', self.weights[2]
+        # print 'self.weights[3]', self.weights[3]
+
+        # print 'zip(sizes[:-1], sizes[1:])', zip(sizes[:-1], sizes[1:])
 
     def feedforward(self, a):
         """Return the output of the network if ``a`` is input."""
@@ -58,6 +64,9 @@ class Network(object):
             mini_batches = [
                 training_data[k:k+mini_batch_size]
                 for k in xrange(0, n, mini_batch_size)]
+            # testRange = xrange(0, n, mini_batch_size)
+            # for i in testRange:
+            #     print i
             for mini_batch in mini_batches:
                 self.update_mini_batch(mini_batch, eta)
             if test_data:
@@ -73,6 +82,7 @@ class Network(object):
         is the learning rate."""
         nabla_b = [np.zeros(b.shape) for b in self.biases]
         nabla_w = [np.zeros(w.shape) for w in self.weights]
+        # here's where we need to do matrices instead
         for x, y in mini_batch:
             delta_nabla_b, delta_nabla_w = self.backprop(x, y)
             nabla_b = [nb+dnb for nb, dnb in zip(nabla_b, delta_nabla_b)]
@@ -92,6 +102,7 @@ class Network(object):
         # feedforward
         activation = x
         activations = [x] # list to store all the activations, layer by layer
+        # presumably we're gonna push the activations for subsequent layers onto this array
         zs = [] # list to store all the z vectors, layer by layer
         for b, w in zip(self.biases, self.weights):
             z = np.dot(w, activation)+b
