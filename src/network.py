@@ -88,6 +88,7 @@ class Network(object):
         for x, y in mini_batch:
             mini_batch_inputs.append(x)
             # there is almost certainly a more declarative/pythony way to do this
+            # ask alando
             mini_batch_expected_outputs.append(y)
             # delta_nabla_b, delta_nabla_w = self.backprop(x, y)
             # nabla_b = [nb+dnb for nb, dnb in zip(nabla_b, delta_nabla_b)]
@@ -119,12 +120,30 @@ class Network(object):
                 activations.append(activation)
             all_activations.append(activations)
             all_zs.append(zs)
-        return (all_activations, all_zs)
+        dictionary = {
+            'all_activations': all_activations,
+            'all_zs': all_zs
+        }
+        for key, value in dictionary.iteritems() :
+            print key
+        return dictionary
 
     def backprop_mini_batch(self, forward_results, mini_batch_expected_outputs):
         batch_nabla_b = [np.zeros(b.shape) for b in self.biases]
         batch_nabla_w = [np.zeros(w.shape) for w in self.weights]
-        for activations, zs in forward_results:
+        for key, value in forward_results.iteritems() :
+            print key
+        # print forward_results
+        # print type(forward_results)
+        # print type(forward_results[0])
+        # print forward_results[0][0]
+        # print forward_results[0][1]
+        # print forward_results.all_activations[0]
+        print forward_results['all_activations']
+        for activations in forward_results['all_activations']:
+            # print 'in for'
+            # print activations[0]
+            # print zs[0]
             nabla_b = [np.zeros(b.shape) for b in self.biases]
             nabla_w = [np.zeros(w.shape) for w in self.weights]
             delta = self.cost_derivative(activations[-1], y) * \
