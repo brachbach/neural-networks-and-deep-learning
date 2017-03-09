@@ -124,7 +124,12 @@ class Network(object):
     def backprop_mini_batch(self, forward_results, mini_batch_expected_outputs):
         batch_nabla_b = [np.zeros(b.shape) for b in self.biases]
         batch_nabla_w = [np.zeros(w.shape) for w in self.weights]
-        for activations, zs in forward_results:
+        all_activations = forward_results[0]
+        all_zs = forward_results[1]
+        for idx, activations in enumerate(all_activations):
+            zs = all_zs[idx]
+            y = mini_batch_expected_outputs[idx]
+
             nabla_b = [np.zeros(b.shape) for b in self.biases]
             nabla_w = [np.zeros(w.shape) for w in self.weights]
             delta = self.cost_derivative(activations[-1], y) * \
