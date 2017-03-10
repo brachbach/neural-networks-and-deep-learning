@@ -45,8 +45,12 @@ inverse = invertible.getI()
 # both should be the identity matrixpl
 print invertible * inverse
 print inverse * invertible
+# interestingly, you get the ID matrix, but with some floating point error
 
 vector1 = [1, 2, 3]
 vector2 = [4, 5, 6]
-np.outer(vector1, vector2)
+print np.outer(vector1, vector2)
+# think of the first vector as vertical and the second as horizontal
+# 
 
+# honestly still don't have an answer to my original question of how to add a vector to each row of a matrix!

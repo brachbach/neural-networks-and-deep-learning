@@ -135,9 +135,12 @@ class Network(object):
         neuron in the final layer has the highest activation."""
         # ask alando about the pythonic way to do this
         x = [i[0] for i in test_data]
+        # print 'array comp', x[0][0], 'end array comp'
+        x_no_inner_array = [[neuron_activation[0] for neuron_activation in test_activations] for test_activations in x]
+        # print x_no_inner_array[0]
         # hmm actually there must be some reason that the weird inner array existed in the first place...
-        x_no_inner_array = map(lambda input: map(lambda inner: inner[0], input), x)
-        print x_no_inner_array[0][0]
+        # x_no_inner_array = map(lambda input: map(lambda inner: inner[0], input), x)
+        print type(x_no_inner_array[0][0])
         feedforward = np.argmax(self.feedforward_matrix(x_no_inner_array))
         return sum(int(x == y) for (x, y) in (feedforward, test_data[1]))
 
