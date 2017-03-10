@@ -11,7 +11,7 @@ pseudocode for old approach:
     for last layer, figure out params that will be used in backwards pass
     backwards pass (layer by layer)
 
-psuedocode for new approach:
+psuedocode for wrong new approach:
   
   create (2 separate) matrices of all the expected inputs and expected outputs
   (in some sense this is weird and the matrix should come prepackaged -- maybe look into actually doing this upstream. OTOH, it's not hard to put this together)
@@ -37,3 +37,25 @@ psuedocode for new approach:
 Consider creating my own extremely simple data set for testing
 
 Consider actually setting up automated tests
+
+
+thoughts on correct new approach:
+- somehow figure out how to do feedforward without iterating through the layers
+-- see the feedforward method for a clue!
+-- well actually... that's iterative... but why is it different from the feedforward method used in the code below?
+-- wait maybe the idea is to still go layer by layer, but just do all of the examples in the batch at once ?!?
+-- oh I see it's different b/c there are intermediate params that we need to keep track of in the version below
+-- ok yeah looking at the instructions I'm pretty sure that you still iterate through the layers, it's just that you're doing all the examples in the batch at one time for each layer
+-- possible to test this out w/ just self.feedforward?
+--- yes, it's called in "evaluate"!
+--- also need to change how it's called but that's not hard!
+
+psuedocode for evaluate (currently):
+
+- iterate through test data, running feedforward on each
+- find the prediction for each layer, and zip that with the right answers
+- see how many of the answers were right overall
+
+psuedocode for feedforward (currently):
+
+- iterate through the layers of the net, 
