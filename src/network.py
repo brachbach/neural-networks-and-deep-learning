@@ -60,15 +60,15 @@ class Network(object):
         if test_data: n_test = len(test_data)
         n = len(training_data)
         for j in xrange(epochs):
-            random.shuffle(training_data)
-            mini_batches = [
-                training_data[k:k+mini_batch_size]
-                for k in xrange(0, n, mini_batch_size)]
-            # testRange = xrange(0, n, mini_batch_size)
-            # for i in testRange:
-            #     print i
-            for mini_batch in mini_batches:
-                self.update_mini_batch(mini_batch, eta)
+            # random.shuffle(training_data)
+            # mini_batches = [
+            #     training_data[k:k+mini_batch_size]
+            #     for k in xrange(0, n, mini_batch_size)]
+            # # testRange = xrange(0, n, mini_batch_size)
+            # # for i in testRange:
+            # #     print i
+            # for mini_batch in mini_batches:
+            #     self.update_mini_batch(mini_batch, eta)
             if test_data:
                 print "Epoch {0}: {1} / {2}".format(
                     j, self.evaluate(test_data), n_test)
@@ -133,8 +133,27 @@ class Network(object):
         network outputs the correct result. Note that the neural
         network's output is assumed to be the index of whichever
         neuron in the final layer has the highest activation."""
-        test_results = np.argmax(self.feedforward_matrix(test_data))
-        return sum(int(x == y) for (x, y) in test_results)
+        # ask alando about the pythonic way to do this
+        x = [i[0] for i in test_data]
+        # hmm actually there must be some reason that the weird inner array existed in the first place...
+        x_no_inner_array = map(lambda input: map(lambda inner: inner[0], input), x)
+        print x_no_inner_array[0][0]
+        feedforward = np.argmax(self.feedforward_matrix(x_no_inner_array))
+        return sum(int(x == y) for (x, y) in (feedforward, test_data[1]))
+
+    def feedforward_matrix(self, a):
+        """Return the output of the network if ``a`` is input."""
+        # print a[0]
+        # print a[1]
+        # print a[100]
+        for b, w in zip(self.biases, self.weights):
+            # print a[0]
+            # print a[0][0]
+            # print a[0][0][0]
+            dots = np.dot(a, w.transpose())
+            zs = dots+b
+            a = sigmoid(z)
+        return a
 
     def cost_derivative(self, output_activations, y):
         """Return the vector of partial derivatives \partial C_x /

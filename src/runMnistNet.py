@@ -6,4 +6,5 @@ import network
 net = network.Network([784, 2, 3, 10])
 
 # (...epochs,  mini-batch size, learning rate, .. )
-net.SGD(training_data, 30, 10, 3.0, test_data=test_data)
+
+net.SGD(training_data, 30, 10, 3.0, test_data)
