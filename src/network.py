@@ -128,6 +128,21 @@ class Network(object):
             nabla_w[-l] = np.dot(delta, activations[-l-1].transpose())
         return (nabla_b, nabla_w)
 
+    def feedforward_matrix(self, a):
+        """Return the output of the network if ``a`` is input."""
+        # print a[0]
+        # print a[1]
+        # print a[100]
+        for b, w in zip(self.biases, self.weights):
+            # print a[0]
+            # print a[0][0]
+            # print a[0][0][0]
+            flat_b = [bias[0] for bias in b]
+            dots = np.dot(a, w.transpose())
+            zs = dots+flat_b
+            a = sigmoid(zs)
+        return argmax(a)
+
     def evaluate(self, test_data):
         """Return the number of test inputs for which the neural
         network outputs the correct result. Note that the neural
@@ -141,22 +156,11 @@ class Network(object):
         # hmm actually there must be some reason that the weird inner array existed in the first place...
         # x_no_inner_array = map(lambda input: map(lambda inner: inner[0], input), x)
         print type(x_no_inner_array[0][0])
-        feedforward = np.argmax(self.feedforward_matrix(x_no_inner_array))
+        feedforward = self.feedforward_matrix(x_no_inner_array)
+        print feedforward[0]
+        print feedforward[100]
         return sum(int(x == y) for (x, y) in (feedforward, test_data[1]))
 
-    def feedforward_matrix(self, a):
-        """Return the output of the network if ``a`` is input."""
-        # print a[0]
-        # print a[1]
-        # print a[100]
-        for b, w in zip(self.biases, self.weights):
-            # print a[0]
-            # print a[0][0]
-            # print a[0][0][0]
-            dots = np.dot(a, w.transpose())
-            zs = dots+b
-            a = sigmoid(z)
-        return a
 
     def cost_derivative(self, output_activations, y):
         """Return the vector of partial derivatives \partial C_x /
