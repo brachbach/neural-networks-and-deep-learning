@@ -60,15 +60,15 @@ class Network(object):
         if test_data: n_test = len(test_data)
         n = len(training_data)
         for j in xrange(epochs):
-            # random.shuffle(training_data)
-            # mini_batches = [
-            #     training_data[k:k+mini_batch_size]
-            #     for k in xrange(0, n, mini_batch_size)]
-            # # testRange = xrange(0, n, mini_batch_size)
-            # # for i in testRange:
-            # #     print i
-            # for mini_batch in mini_batches:
-            #     self.update_mini_batch(mini_batch, eta)
+            random.shuffle(training_data)
+            mini_batches = [
+                training_data[k:k+mini_batch_size]
+                for k in xrange(0, n, mini_batch_size)]
+            # testRange = xrange(0, n, mini_batch_size)
+            # for i in testRange:
+            #     print i
+            for mini_batch in mini_batches:
+                self.update_mini_batch(mini_batch, eta)
             if test_data:
                 print "Epoch {0}: {1} / {2}".format(
                     j, self.evaluate(test_data), n_test)
@@ -141,7 +141,7 @@ class Network(object):
             dots = np.dot(a, w.transpose())
             zs = dots+flat_b
             a = sigmoid(zs)
-        return argmax(a)
+        return a
 
     def evaluate(self, test_data):
         """Return the number of test inputs for which the neural
@@ -156,10 +156,17 @@ class Network(object):
         # hmm actually there must be some reason that the weird inner array existed in the first place...
         # x_no_inner_array = map(lambda input: map(lambda inner: inner[0], input), x)
         print type(x_no_inner_array[0][0])
-        feedforward = self.feedforward_matrix(x_no_inner_array)
-        print feedforward[0]
-        print feedforward[100]
-        return sum(int(x == y) for (x, y) in (feedforward, test_data[1]))
+        all_activations = self.feedforward_matrix(x_no_inner_array)
+        # print feedforward[0]
+        # print feedforward[100]
+        # to_check = zip(feedforward, test_data[1])
+        guesses = [np.argmax(activations) for activations in all_activations]
+        # print argmaxes[10]
+        # print test_data[1]
+        answers = [test_datum[1] for test_datum in test_data]
+        print answers[10]
+        to_check = zip(guesses, answers)
+        return sum(int(x == y) for (x, y) in (to_check))
 
 
     def cost_derivative(self, output_activations, y):
