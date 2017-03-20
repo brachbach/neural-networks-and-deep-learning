@@ -126,8 +126,10 @@ class Network(object):
             a = sigmoid(np.dot(w, a)+b)
         return a
 
+# early_stop is the number of epochs to go by w/o improvement before stopping
     def SGD(self, training_data, epochs, mini_batch_size, eta,
-            lmbda = 0.0,
+            lmbda=0.0,
+            early_stop=10,
             evaluation_data=None,
             monitor_evaluation_cost=False,
             monitor_evaluation_accuracy=False,
@@ -183,7 +185,9 @@ class Network(object):
                 evaluation_accuracy.append(accuracy)
                 print "Accuracy on evaluation data: {} / {}".format(
                     self.accuracy(evaluation_data), n_data)
-            print
+            best_epoch_idx = evaluation_accuracy.index(max(evaluation_accuracy))
+            if j - best_epoch_idx >= early_stop:
+                break
         return evaluation_cost, evaluation_accuracy, \
             training_cost, training_accuracy
 
