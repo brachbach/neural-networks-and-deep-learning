@@ -204,7 +204,7 @@ class Network(object):
         # self.weights = [(1-eta*(lmbda/n))*w-(eta/len(mini_batch))*nw
         #                 for w, nw in zip(self.weights, nabla_w)]
         # surely there's a better way to do the sign...
-        self.weights = [(w - ((eta * lmbda) / n) * (w / abs(w))) - (eta/len(mini_batch))*nw
+        self.weights = [w - (((eta * lmbda) / n) * (w / abs(w))) - (nw * (eta/len(mini_batch)))
                         for w, nw in zip(self.weights, nabla_w)]
         self.biases = [b-(eta/len(mini_batch))*nb
                        for b, nb in zip(self.biases, nabla_b)]
