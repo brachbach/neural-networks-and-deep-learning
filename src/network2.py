@@ -154,6 +154,8 @@ class Network(object):
         are empty if the corresponding flag is not set.
 
         """
+        learning_rate = eta
+
         if evaluation_data: n_data = len(evaluation_data)
         n = len(training_data)
         evaluation_cost, evaluation_accuracy = [], []
@@ -165,7 +167,7 @@ class Network(object):
                 for k in xrange(0, n, mini_batch_size)]
             for mini_batch in mini_batches:
                 self.update_mini_batch(
-                    mini_batch, eta, lmbda, len(training_data))
+                    mini_batch, learning_rate, lmbda, len(training_data))
             print "Epoch %s training complete" % j
             if monitor_training_cost:
                 cost = self.total_cost(training_data, lmbda)
@@ -187,7 +189,11 @@ class Network(object):
                     self.accuracy(evaluation_data), n_data)
             best_epoch_idx = evaluation_accuracy.index(max(evaluation_accuracy))
             if j - best_epoch_idx >= early_stop:
+                print 'halving learning_rate, new rate is ', learning_rate
+                learning_rate = learning_rate / 2
+            if learning_rate <= eta / 128:
                 break
+
         return evaluation_cost, evaluation_accuracy, \
             training_cost, training_accuracy
 

@@ -7,4 +7,4 @@ net = network2.Network([784, 10, 10], cost=network2.CrossEntropyCost)
 net.large_weight_initializer()
 
 # (...epochs,  mini-batch size, learning rate, .. )
-net.SGD(training_data, 30, 10, 0.5, lmbda=5.0, early_stop=2, evaluation_data=test_data, monitor_evaluation_accuracy=True)
+net.SGD(training_data, 30, 10, 0.5, lmbda=5.0, early_stop=1, evaluation_data=test_data, monitor_evaluation_accuracy=True)
