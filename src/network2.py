@@ -1,3 +1,9 @@
+# to implement momentum -- 
+# conceptually, instead of building up a delta_nabla_w, build up a delta_nabla_v
+# you have to keep track of the previous v from the previous round
+# then you figure out the new v
+# then you apply the update to w
+
 """network2.py
 ~~~~~~~~~~~~~~
 
@@ -198,7 +204,7 @@ class Network(object):
         nabla_b = [np.zeros(b.shape) for b in self.biases]
         nabla_w = [np.zeros(w.shape) for w in self.weights]
         for x, y in mini_batch:
-            delta_nabla_b, delta_nabla_w = self.backprop(x, y)
+            delta_nabla_b, delta_nabla_v = self.backprop(x, y)
             nabla_b = [nb+dnb for nb, dnb in zip(nabla_b, delta_nabla_b)]
             nabla_w = [nw+dnw for nw, dnw in zip(nabla_w, delta_nabla_w)]
         self.weights = [(1-eta*(lmbda/n))*w-(eta/len(mini_batch))*nw
