@@ -134,7 +134,7 @@ class Network(object):
 
     def SGD(self, training_data, epochs, mini_batch_size, eta,
             lmbda=0.0,
-            momentum_coefficient=1000,
+            momentum_coefficient=0.5,
             evaluation_data=None,
             monitor_evaluation_cost=False,
             monitor_evaluation_accuracy=False,
@@ -165,12 +165,13 @@ class Network(object):
         training_cost, training_accuracy = [], []
         for j in xrange(epochs):
             random.shuffle(training_data)
+            velocities = [np.zeros(w.shape) for w in self.weights]
             mini_batches = [
                 training_data[k:k+mini_batch_size]
                 for k in xrange(0, n, mini_batch_size)]
             for mini_batch in mini_batches:
                 self.update_mini_batch(
-                    mini_batch, eta, lmbda, momentum_coefficient, len(training_data))
+                    mini_batch, eta, lmbda, momentum_coefficient, velocities, len(training_data))
             print "Epoch %s training complete" % j
             if monitor_training_cost:
                 cost = self.total_cost(training_data, lmbda)
@@ -194,7 +195,7 @@ class Network(object):
         return evaluation_cost, evaluation_accuracy, \
             training_cost, training_accuracy
 
-    def update_mini_batch(self, mini_batch, eta, lmbda, momentum_coefficient, n):
+    def update_mini_batch(self, mini_batch, eta, lmbda, momentum_coefficient, velocities, n):
         """Update the network's weights and biases by applying gradient
         descent using backpropagation to a single mini batch.  The
         ``mini_batch`` is a list of tuples ``(x, y)``, ``eta`` is the
@@ -204,13 +205,14 @@ class Network(object):
         """
         nabla_b = [np.zeros(b.shape) for b in self.biases]
         nabla_w = [np.zeros(w.shape) for w in self.weights]
-        velocities = [np.zeros(w.shape) for w in self.weights]
         for x, y in mini_batch:
             delta_nabla_b, delta_nabla_w = self.backprop(x, y)
             nabla_b = [nb+dnb for nb, dnb in zip(nabla_b, delta_nabla_b)]
             nabla_w = [nw+dnw for nw, dnw in zip(nabla_w, delta_nabla_w)]
         velocities = [(momentum_coefficient * v) - ((eta/len(mini_batch)) * nw)
                         for v, nw in zip(velocities, nabla_w)]
+        # print w[1]
+        # print v[1]
         self.weights = [w + v
                         for w, v in zip(self.weights, velocities)]
         self.biases = [b-(eta/len(mini_batch))*nb
