@@ -3,6 +3,8 @@
 # you have to keep track of the previous v from the previous round
 # then you figure out the new v
 # then you apply the update to w
+# 
+# debugging -- velocities seem to be decaying really fast, no matter the momentum coefficient. So I'd like to figure that out.
 
 """network2.py
 ~~~~~~~~~~~~~~
@@ -213,6 +215,8 @@ class Network(object):
                         for v, nw in zip(self.velocities, nabla_w)]
         self.weights = [w + v
                         for w, v in zip(self.weights, self.velocities)]
+        print 'velocities[1][0]:', self.velocities[1][0]
+        print 'weights[1][0]:', self.weights[1][0]
         self.biases = [b-(eta/len(mini_batch))*nb
                        for b, nb in zip(self.biases, nabla_b)]
 
