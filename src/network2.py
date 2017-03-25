@@ -6,6 +6,8 @@
 # 
 # debugging -- velocities seem to be decaying really fast, no matter the momentum coefficient. So I'd like to figure that out.
 
+# velocities look fine
+# weights do seem to actually be updating
 """network2.py
 ~~~~~~~~~~~~~~
 
@@ -213,10 +215,12 @@ class Network(object):
             nabla_w = [nw+dnw for nw, dnw in zip(nabla_w, delta_nabla_w)]
         self.velocities = [(momentum_coefficient * v) - ((eta/len(mini_batch)) * nw)
                         for v, nw in zip(self.velocities, nabla_w)]
+        # print 'pre weights[1][0]:', self.weights[1][0]
         self.weights = [w + v
                         for w, v in zip(self.weights, self.velocities)]
-        print 'velocities[1][0]:', self.velocities[1][0]
-        print 'weights[1][0]:', self.weights[1][0]
+        # print 'post weights[1][0]:', self.weights[1][0]
+        # print 'velocities[1][0]:', self.velocities[1][0]
+        # print 'weights[1][0]:', self.weights[1][0]
         self.biases = [b-(eta/len(mini_batch))*nb
                        for b, nb in zip(self.biases, nabla_b)]
 
