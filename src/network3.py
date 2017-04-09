@@ -159,8 +159,9 @@ class Network(object):
             })
         # Do the actual training
         best_validation_accuracy = 0.0
+        best_epoch = 0
         for epoch in xrange(epochs):
-            if epoch > 1:
+            if epoch - best_epoch > 1:
                 break
             for minibatch_index in xrange(num_training_batches):
                 iteration = num_training_batches*epoch+minibatch_index
@@ -176,6 +177,7 @@ class Network(object):
                     if validation_accuracy >= best_validation_accuracy:
                         print("This is the best validation accuracy to date.")
                         best_validation_accuracy = validation_accuracy
+                        best_epoch = epoch
                         best_iteration = iteration
                         if test_data:
                             test_accuracy = np.mean(
@@ -183,9 +185,10 @@ class Network(object):
                             print('The corresponding test accuracy is {0:.2%}'.format(
                                 test_accuracy))
         print("Finished training network.")
-        print("Best validation accuracy of {0:.2%} obtained at iteration {1}".format(
+        print("Best validation accuracy of {0:.2%} obtained at iteration {1} in epoch {2}".format(
             best_validation_accuracy, best_iteration))
         print("Corresponding test accuracy of {0:.2%}".format(test_accuracy))
+
 
 #### Define layer types
 
