@@ -183,6 +183,21 @@ class Network(object):
             best_validation_accuracy, best_iteration))
         print("Corresponding test accuracy of {0:.2%}".format(test_accuracy))
 
+    def run_on_data(self, data):
+        data_x, data_y = data
+
+        accuracy = theano.function(
+            self.layers[-1].accuracy(self.y),
+            givens={
+                self.x:
+                data_x,
+                self.y:
+                data_y
+            })
+
+        print("Accuracy: {0}".format(
+            accuracy))
+
 #### Define layer types
 
 class ConvPoolLayer(object):
