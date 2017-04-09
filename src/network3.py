@@ -117,6 +117,7 @@ class Network(object):
 
         # define the (regularized) cost function, symbolic gradients, and updates
         l2_norm_squared = sum([(layer.w**2).sum() for layer in self.layers])
+        # I'm pretty sure this line is where the x and y from the givens are used
         cost = self.layers[-1].cost(self)+\
                0.5*lmbda*l2_norm_squared/num_training_batches
         grads = T.grad(cost, self.params)
@@ -159,10 +160,13 @@ class Network(object):
         # Do the actual training
         best_validation_accuracy = 0.0
         for epoch in xrange(epochs):
+            if epoch > 1:
+                break
             for minibatch_index in xrange(num_training_batches):
                 iteration = num_training_batches*epoch+minibatch_index
                 if iteration % 1000 == 0:
                     print("Training mini-batch number {0}".format(iteration))
+                # huh, this variable isn't used anywhere, so I guess this is just for the side effect
                 cost_ij = train_mb(minibatch_index)
                 if (iteration+1) % num_training_batches == 0:
                     validation_accuracy = np.mean(
