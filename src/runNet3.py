@@ -13,7 +13,7 @@ net = Network([
         FullyConnectedLayer(n_in=5*12*12, n_out=20),
         SoftmaxLayer(n_in=20, n_out=10)], mini_batch_size)
 
-net.SGD(training_data, 1, mini_batch_size, 0.1, 
-            validation_data, test_data)
+# net.SGD(training_data, 1, mini_batch_size, 0.1, 
+#             validation_data, test_data)
 
 net.run_on_data(test_data)

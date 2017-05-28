@@ -184,19 +184,64 @@ class Network(object):
         print("Corresponding test accuracy of {0:.2%}".format(test_accuracy))
 
     def run_on_data(self, data):
-        data_x, data_y = data
+        lmbda = 0
+        eta = 0
+        """Train the network using mini-batch stochastic gradient descent."""
+        x, y = data
 
-        accuracy = theano.function(
-            self.layers[-1].accuracy(self.y),
+        print y
+        print y[0]
+        print y[0][0]
+
+        # compute number of minibatches for training, validation and testing
+        num_batches = 1
+
+        # define the (regularized) cost function, symbolic gradients, and updates
+        # might be able to delete some of these later///
+        l2_norm_squared = sum([(layer.w**2).sum() for layer in self.layers])
+        cost = self.layers[-1].cost(self)+\
+               0.5*lmbda*l2_norm_squared/num_batches
+        grads = T.grad(cost, self.params)
+        updates = [(param, param-eta*grad)
+                   for param, grad in zip(self.params, grads)]
+
+        # define functions to train a mini-batch, and to compute the
+        # accuracy in validation and test mini-batches.
+        # could probably adapt these to be per whole data set rather than per mini batch
+        i = T.lscalar() # mini-batch index
+        train_mb = theano.function(
+            [i], cost, updates=updates,
             givens={
                 self.x:
-                data_x,
+                x,
                 self.y:
-                data_y
+                y
             })
-
-        print("Accuracy: {0}".format(
-            accuracy))
+        validate_mb_accuracy = theano.function(
+            [i], self.layers[-1].accuracy(self.y),
+            givens={
+                self.x:
+                x,
+                self.y:
+                y
+            })
+        test_mb_accuracy = theano.function(
+            [i], self.layers[-1].accuracy(self.y),
+            givens={
+                self.x:
+                x,
+                self.y:
+                y
+            })
+        self.test_mb_predictions = theano.function(
+            [i], self.layers[-1].y_out,
+            givens={
+                self.x:
+                x
+            })
+        cost = train_mb(0)
+        accuracy = validate_mb_accuracy(0)
+        print('Accuracy: {0}'.format(accuracy))
 
 #### Define layer types
 
