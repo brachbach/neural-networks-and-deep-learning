@@ -105,21 +105,25 @@ class Network(object):
         self.output_dropout = self.layers[-1].output_dropout
 
     def get_accuracy(self, filename="../data/mnist.pkl.gz"):
-        data = load_data_shared(filename)
-        val_data = data[1]
+        all_data = load_data_shared(filename)
+        arbitrary_data = all_data[1]
+        arbitrary_x, arbitrary_y = arbitrary_data
         i = T.lscalar()
         _get_accuracy = theano.function(
             [i], self.layers[-1].accuracy(self.y),
             givens={
                 self.x:
-                val_data[i*self.mini_batch_size: (i+1)*self.mini_batch_size],
+                arbitrary_x[i*self.mini_batch_size: (i+1)*self.mini_batch_size],
                 self.y:
-                val_data[i*self.mini_batch_size: (i+1)*self.mini_batch_size]
+                arbitrary_y[i*self.mini_batch_size: (i+1)*self.mini_batch_size]
             })
-        vaccuracy = np.mean(
+        # accuracy = _get_accuracy(0)
+        accuracy = np.mean(
             [_get_accuracy(j) for j in xrange(2)])
-        print("accuracy!!!: {1:.2%}".format(
-            validation_accuracy))
+        print('accuracy!!!: {0:.2%}'.format(
+            accuracy))
+        # print('The corresponding test accuracy is {0:.2%}'.format(
+        #     test_accuracy))
 
     def SGD(self, training_data, epochs, mini_batch_size, eta,
             validation_data, test_data, lmbda=0.0):
