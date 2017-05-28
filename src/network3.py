@@ -63,6 +63,7 @@ else:
     print "Running with a CPU.  If this is not desired, then the modify "+\
         "network3.py to set\nthe GPU flag to True."
 
+# I think I want to use this to bring in the arbitrary data
 #### Load the MNIST data
 def load_data_shared(filename="../data/mnist.pkl.gz"):
     f = gzip.open(filename, 'rb')
@@ -103,6 +104,23 @@ class Network(object):
         self.output = self.layers[-1].output
         self.output_dropout = self.layers[-1].output_dropout
 
+    def get_accuracy(self, filename="../data/mnist.pkl.gz"):
+        data = load_data_shared(filename)
+        val_data = data[1]
+        i = T.lscalar()
+        _get_accuracy = theano.function(
+            [i], self.layers[-1].accuracy(self.y),
+            givens={
+                self.x:
+                val_data[i*self.mini_batch_size: (i+1)*self.mini_batch_size],
+                self.y:
+                val_data[i*self.mini_batch_size: (i+1)*self.mini_batch_size]
+            })
+        vaccuracy = np.mean(
+            [_get_accuracy(j) for j in xrange(2)])
+        print("accuracy!!!: {1:.2%}".format(
+            validation_accuracy))
+
     def SGD(self, training_data, epochs, mini_batch_size, eta,
             validation_data, test_data, lmbda=0.0):
         """Train the network using mini-batch stochastic gradient descent."""
@@ -134,6 +152,26 @@ class Network(object):
                 self.y:
                 training_y[i*self.mini_batch_size: (i+1)*self.mini_batch_size]
             })
+        # how do these two fns work?
+        # seems like what gets passed in is just an int?
+        # ok yeah -- per the documentation (http://deeplearning.net/software/theano/library/compile/function.html)
+        # the first param is the array of args
+        # the second param is the outputs
+        # 
+        # the givens are replacements to make in the computation:
+        # replace self.x w/ validation_x[i*self.mini_batch_size: (i+1)*self.mini_batch_size],
+        # wherever self.x is references
+        # (at least, I think this is what it means)
+        # 
+        # x is input
+        # y is output
+        # validation_x and validation_y are validation inputs and outputs
+        #
+        # the second part of the expression ([i*self.mini_batch_size: (i+1)*self.mini_batch_size])
+        # is just sectioning off a mini-batch-size chunk of the validation data
+        # 
+        # accuracy is a method defined on certain layer types (those intended to be used as output layers)
+        # more commentary there
         validate_mb_accuracy = theano.function(
             [i], self.layers[-1].accuracy(self.y),
             givens={
@@ -159,6 +197,9 @@ class Network(object):
         # Do the actual training
         best_validation_accuracy = 0.0
         for epoch in xrange(epochs):
+            if best_validation_accuracy >= 0.5:
+                print 'entered breaker'
+                break
             for minibatch_index in xrange(num_training_batches):
                 iteration = num_training_batches*epoch+minibatch_index
                 if iteration % 1000 == 0:
@@ -266,6 +307,8 @@ class FullyConnectedLayer(object):
         self.output_dropout = self.activation_fn(
             T.dot(self.inpt_dropout, self.w) + self.b)
 
+    # when this is called, doesn't seem obvious to me that y_out was ever computed
+    # not sure where that happens
     def accuracy(self, y):
         "Return the accuracy for the mini-batch."
         return T.mean(T.eq(y, self.y_out))
@@ -297,6 +340,11 @@ class SoftmaxLayer(object):
         "Return the log-likelihood cost."
         return -T.mean(T.log(self.output_dropout)[T.arange(net.y.shape[0]), net.y])
 
+    # while I don't know exactly what this is doing, seems pretty clear that it's
+    # basically just comparing what the layer spat out to what it was suppsoed
+    # to spit out
+    # 
+    # remember that in python ever method was that weird, dumb self param
     def accuracy(self, y):
         "Return the accuracy for the mini-batch."
         return T.mean(T.eq(y, self.y_out))
