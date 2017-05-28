@@ -169,6 +169,7 @@ class Network(object):
         #
         # the second part of the expression ([i*self.mini_batch_size: (i+1)*self.mini_batch_size])
         # is just sectioning off a mini-batch-size chunk of the validation data
+        # but actually -- why do that? Wouldn't you just want to go through all of the validation data at once?
         # 
         # accuracy is a method defined on certain layer types (those intended to be used as output layers)
         # more commentary there
