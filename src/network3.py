@@ -69,6 +69,7 @@ def load_data_shared(filename="../data/mnist.pkl.gz"):
     f = gzip.open(filename, 'rb')
     training_data, validation_data, test_data = cPickle.load(f)
     f.close()
+    print(type(validation_data))
     def shared(data):
         """Place the data into shared variables.  This allows Theano to copy
         the data to the GPU, if one is available.
@@ -106,7 +107,8 @@ class Network(object):
 
     def get_accuracy(self, filename="../data/mnist.pkl.gz"):
         all_data = load_data_shared(filename)
-        arbitrary_data = all_data[1]
+        arbitrary_data = all_data[2]
+        num_batches = size(arbitrary_data)/self.mini_batch_size
         arbitrary_x, arbitrary_y = arbitrary_data
         i = T.lscalar()
         _get_accuracy = theano.function(
@@ -119,7 +121,7 @@ class Network(object):
             })
         # accuracy = _get_accuracy(0)
         accuracy = np.mean(
-            [_get_accuracy(j) for j in xrange(2)])
+            [_get_accuracy(j) for j in xrange(num_batches)])
         print('accuracy!!!: {0:.2%}'.format(
             accuracy))
         # print('The corresponding test accuracy is {0:.2%}'.format(
@@ -129,6 +131,7 @@ class Network(object):
             validation_data, test_data, lmbda=0.0):
         """Train the network using mini-batch stochastic gradient descent."""
         training_x, training_y = training_data
+        # print(len(training_x))
         validation_x, validation_y = validation_data
         test_x, test_y = test_data
 
