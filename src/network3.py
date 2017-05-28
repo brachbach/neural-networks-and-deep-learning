@@ -105,21 +105,20 @@ class Network(object):
         self.output_dropout = self.layers[-1].output_dropout
 
     def get_accuracy(self, filename="../data/mnist.pkl.gz"):
-        data = load_data_shared(filename)
-        val_data = data[1]
-        i = T.lscalar()
+        all_data = load_data_shared(filename)
+        arbitrary_data = all_data[1]
+        arbitrary_x, arbitrary_y = arbitrary_data
+        print("arbitrary_x [0]", arbitrary_x)
+        print("arbitrary_y [0]", arbitrary_y)
         _get_accuracy = theano.function(
-            [i], self.layers[-1].accuracy(self.y),
+            [], self.layers[-1].accuracy(self.y),
             givens={
-                self.x:
-                val_data[i*self.mini_batch_size: (i+1)*self.mini_batch_size],
-                self.y:
-                val_data[i*self.mini_batch_size: (i+1)*self.mini_batch_size]
+                self.x: arbitrary_x,
+                self.y: arbitrary_y
             })
-        vaccuracy = np.mean(
-            [_get_accuracy(j) for j in xrange(2)])
+        accuracy = _get_accuracy()
         print("accuracy!!!: {1:.2%}".format(
-            validation_accuracy))
+            accuracy))
 
     def SGD(self, training_data, epochs, mini_batch_size, eta,
             validation_data, test_data, lmbda=0.0):
@@ -211,6 +210,8 @@ class Network(object):
                         [validate_mb_accuracy(j) for j in xrange(num_validation_batches)])
                     print("Epoch {0}: validation accuracy {1:.2%}".format(
                         epoch, validation_accuracy))
+                    print("validation_x [0]", validation_x)
+                    print("validation_y [0]", validation_y)
                     if validation_accuracy >= best_validation_accuracy:
                         print("This is the best validation accuracy to date.")
                         best_validation_accuracy = validation_accuracy

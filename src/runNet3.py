@@ -2,7 +2,7 @@ import network3
 from network3 import Network
 from network3 import ConvPoolLayer, FullyConnectedLayer, SoftmaxLayer, ReLU
 training_data, validation_data, test_data = network3.load_data_shared()
-mini_batch_size = 100
+mini_batch_size = 200
 net = Network([
         ConvPoolLayer(image_shape=(mini_batch_size, 1, 28, 28), 
                       filter_shape=(5, 1, 5, 5), 
