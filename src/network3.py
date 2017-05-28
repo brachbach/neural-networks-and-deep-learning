@@ -198,7 +198,7 @@ class Network(object):
         # Do the actual training
         best_validation_accuracy = 0.0
         for epoch in xrange(epochs):
-            if best_validation_accuracy >= 0.5:
+            if best_validation_accuracy > 0.0:
                 print 'entered breaker'
                 break
             for minibatch_index in xrange(num_training_batches):
