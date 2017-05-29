@@ -12,4 +12,3 @@ net = Network([
         SoftmaxLayer(n_in=20, n_out=10)], mini_batch_size)
 net.SGD(training_data, 60, mini_batch_size, 0.1, 
             validation_data, test_data)
-pdb.run(net.get_accuracy())

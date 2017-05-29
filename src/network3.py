@@ -92,8 +92,6 @@ class Network(object):
         by stochastic gradient descent.
 
         """
-        print('running network init')
-        bp()
         self.layers = layers
         self.mini_batch_size = mini_batch_size
         self.params = [param for layer in self.layers for param in layer.params]
@@ -131,8 +129,6 @@ class Network(object):
     def SGD(self, training_data, epochs, mini_batch_size, eta,
             validation_data, test_data, lmbda=0.0):
         """Train the network using mini-batch stochastic gradient descent."""
-        print('called SGD')
-        bp()
         training_x, training_y = training_data
         validation_x, validation_y = validation_data
         test_x, test_y = test_data
@@ -182,6 +178,14 @@ class Network(object):
         # 
         # accuracy is a method defined on certain layer types (those intended to be used as output layers)
         # more commentary there
+        train_mb_accuracy = theano.function(
+            [i], self.layers[-1].accuracy(self.y),
+            givens={
+                self.x:
+                training_x[i*self.mini_batch_size: (i+1)*self.mini_batch_size],
+                self.y:
+                training_y[i*self.mini_batch_size: (i+1)*self.mini_batch_size]
+            })
         validate_mb_accuracy = theano.function(
             [i], self.layers[-1].accuracy(self.y),
             givens={
@@ -206,8 +210,9 @@ class Network(object):
             })
         # Do the actual training
         best_validation_accuracy = 0.0
+        stop = False
         for epoch in xrange(epochs):
-            if best_validation_accuracy > 0.0:
+            if stop:
                 break
             for minibatch_index in xrange(num_training_batches):
                 iteration = num_training_batches*epoch+minibatch_index
@@ -215,8 +220,6 @@ class Network(object):
                     print("Training mini-batch number {0}".format(iteration))
                 cost_ij = train_mb(minibatch_index)
                 if (iteration+1) % num_training_batches == 0:
-                    training_accuracy = self.get_accuracy()
-                    print(training_accuracy)
                     validation_accuracy = np.mean(
                         [validate_mb_accuracy(j) for j in xrange(num_validation_batches)])
                     print("Epoch {0}: validation accuracy {1:.2%}".format(
@@ -230,6 +233,18 @@ class Network(object):
                                 [test_mb_accuracy(j) for j in xrange(num_test_batches)])
                             print('The corresponding test accuracy is {0:.2%}'.format(
                                 test_accuracy))
+                    alt_train_acc = np.mean(
+                        [train_mb_accuracy(j) for j in xrange(num_training_batches)])
+                    print('alt_train_acc:', alt_train_acc)
+                    training_accuracy = self.get_accuracy()
+                    possible_training_improvement = 1 - training_accuracy
+                    possible_validation_improvement = 1 - validation_accuracy
+                    overfit = (possible_validation_improvement / possible_training_improvement) - 1
+                    print("possible_training_improvement: {0}. possible_validation_improvement: {1}. overfit: {2}".format(
+                        possible_training_improvement, possible_validation_improvement, overfit))
+                    if overfit > 0:
+                        print 'some evidence of overfit, stopping training'
+                        stop = True
         print("Finished training network.")
         print("Best validation accuracy of {0:.2%} obtained at iteration {1}".format(
             best_validation_accuracy, best_iteration))
@@ -328,7 +343,6 @@ class FullyConnectedLayer(object):
 class SoftmaxLayer(object):
 
     def __init__(self, n_in, n_out, p_dropout=0.0):
-        bp()
         self.n_in = n_in
         self.n_out = n_out
         self.p_dropout = p_dropout
@@ -342,7 +356,6 @@ class SoftmaxLayer(object):
         self.params = [self.w, self.b]
 
     def set_inpt(self, inpt, inpt_dropout, mini_batch_size):
-        bp()
         self.inpt = inpt.reshape((mini_batch_size, self.n_in))
         self.output = softmax((1-self.p_dropout)*T.dot(self.inpt, self.w) + self.b)
         self.y_out = T.argmax(self.output, axis=1)
@@ -351,7 +364,6 @@ class SoftmaxLayer(object):
         self.output_dropout = softmax(T.dot(self.inpt_dropout, self.w) + self.b)
 
     def cost(self, net):
-        bp()
         "Return the log-likelihood cost."
         return -T.mean(T.log(self.output_dropout)[T.arange(net.y.shape[0]), net.y])
 
@@ -362,7 +374,6 @@ class SoftmaxLayer(object):
     # remember that in python ever method has that weird, dumb self param
     def accuracy(self, y):
         "Return the accuracy for the mini-batch."
-        print('in softmax accuracy')
         return T.mean(T.eq(y, self.y_out))
 
 
