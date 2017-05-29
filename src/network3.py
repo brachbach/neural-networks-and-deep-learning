@@ -34,6 +34,7 @@ versions of Theano.
 # Standard library
 import cPickle
 import gzip
+from pdb import set_trace as bp
 
 # Third-party libraries
 import numpy as np
@@ -115,8 +116,8 @@ class Network(object):
         _get_accuracy = theano.function(
             [i], self.layers[-1].accuracy(self.y),
             givens={
-                # self.x:
-                # arbitrary_x[i*self.mini_batch_size: (i+1)*self.mini_batch_size],
+                self.x:
+                arbitrary_x[i*self.mini_batch_size: (i+1)*self.mini_batch_size],
                 self.y:
                 arbitrary_y[i*self.mini_batch_size: (i+1)*self.mini_batch_size]
             })
@@ -128,8 +129,8 @@ class Network(object):
     def SGD(self, training_data, epochs, mini_batch_size, eta,
             validation_data, test_data, lmbda=0.0):
         """Train the network using mini-batch stochastic gradient descent."""
+        print('called SGD')
         training_x, training_y = training_data
-        # print(len(training_x))
         validation_x, validation_y = validation_data
         test_x, test_y = test_data
 
@@ -204,7 +205,6 @@ class Network(object):
         best_validation_accuracy = 0.0
         for epoch in xrange(epochs):
             if best_validation_accuracy > 0.0:
-                print 'entered breaker'
                 break
             for minibatch_index in xrange(num_training_batches):
                 iteration = num_training_batches*epoch+minibatch_index
@@ -286,7 +286,6 @@ class ConvPoolLayer(object):
 class FullyConnectedLayer(object):
 
     def __init__(self, n_in, n_out, activation_fn=sigmoid, p_dropout=0.0):
-        print('ran fully connected init')
         self.n_in = n_in
         self.n_out = n_out
         self.activation_fn = activation_fn
@@ -323,7 +322,7 @@ class FullyConnectedLayer(object):
 class SoftmaxLayer(object):
 
     def __init__(self, n_in, n_out, p_dropout=0.0):
-        print('ran softmax init')
+        bp()
         self.n_in = n_in
         self.n_out = n_out
         self.p_dropout = p_dropout
@@ -337,6 +336,7 @@ class SoftmaxLayer(object):
         self.params = [self.w, self.b]
 
     def set_inpt(self, inpt, inpt_dropout, mini_batch_size):
+        bp()
         self.inpt = inpt.reshape((mini_batch_size, self.n_in))
         self.output = softmax((1-self.p_dropout)*T.dot(self.inpt, self.w) + self.b)
         self.y_out = T.argmax(self.output, axis=1)
@@ -345,6 +345,7 @@ class SoftmaxLayer(object):
         self.output_dropout = softmax(T.dot(self.inpt_dropout, self.w) + self.b)
 
     def cost(self, net):
+        bp()
         "Return the log-likelihood cost."
         return -T.mean(T.log(self.output_dropout)[T.arange(net.y.shape[0]), net.y])
 
@@ -355,6 +356,7 @@ class SoftmaxLayer(object):
     # remember that in python ever method has that weird, dumb self param
     def accuracy(self, y):
         "Return the accuracy for the mini-batch."
+        print('in softmax accuracy')
         return T.mean(T.eq(y, self.y_out))
 
 
