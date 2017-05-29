@@ -93,6 +93,7 @@ class Network(object):
 
         """
         print('running network init')
+        bp()
         self.layers = layers
         self.mini_batch_size = mini_batch_size
         self.params = [param for layer in self.layers for param in layer.params]
@@ -130,6 +131,7 @@ class Network(object):
             validation_data, test_data, lmbda=0.0):
         """Train the network using mini-batch stochastic gradient descent."""
         print('called SGD')
+        bp()
         training_x, training_y = training_data
         validation_x, validation_y = validation_data
         test_x, test_y = test_data
@@ -317,6 +319,7 @@ class FullyConnectedLayer(object):
     # not sure where that happens
     def accuracy(self, y):
         "Return the accuracy for the mini-batch."
+        print("in fully connected accuracy")
         return T.mean(T.eq(y, self.y_out))
 
 class SoftmaxLayer(object):
