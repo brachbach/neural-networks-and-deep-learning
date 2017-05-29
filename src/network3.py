@@ -159,6 +159,7 @@ class Network(object):
         # Do the actual training
         best_validation_accuracy = 0.0
         for epoch in xrange(epochs):
+            eta = 0
             for minibatch_index in xrange(num_training_batches):
                 iteration = num_training_batches*epoch+minibatch_index
                 if iteration % 1000 == 0:
