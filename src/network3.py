@@ -120,14 +120,16 @@ class Network(object):
         cost = self.layers[-1].cost(self)+\
                0.5*lmbda*l2_norm_squared/num_training_batches
         grads = T.grad(cost, self.params)
-        updates = [(param, param-eta*grad)
+        current_eta = T.lscalar('current_eta')
+        current_eta = 0.0
+        updates = [(param, param-current_eta*grad)
                    for param, grad in zip(self.params, grads)]
 
         # define functions to train a mini-batch, and to compute the
         # accuracy in validation and test mini-batches.
         i = T.lscalar() # mini-batch index
         train_mb = theano.function(
-            [i], cost, updates=updates,
+            [i, current_eta], cost, updates=updates,
             givens={
                 self.x:
                 training_x[i*self.mini_batch_size: (i+1)*self.mini_batch_size],
@@ -159,12 +161,12 @@ class Network(object):
         # Do the actual training
         best_validation_accuracy = 0.0
         for epoch in xrange(epochs):
-            eta = 0
+            current_eta = 0
             for minibatch_index in xrange(num_training_batches):
                 iteration = num_training_batches*epoch+minibatch_index
                 if iteration % 1000 == 0:
                     print("Training mini-batch number {0}".format(iteration))
-                cost_ij = train_mb(minibatch_index)
+                cost_ij = train_mb(minibatch_index, current_eta)
                 if (iteration+1) % num_training_batches == 0:
                     validation_accuracy = np.mean(
                         [validate_mb_accuracy(j) for j in xrange(num_validation_batches)])
