@@ -1,3 +1,10 @@
+# useful overfitting diagnostics:
+# - difference between performance on training vs. validation data (would be easy to do using my fn frmo the previous problem)
+# -- measures potential overfitting to the specific input data used for training
+# - difference between performance on validation and test data, measures at the very end of training
+# -- measures potential overfitting to the hyperparameters
+# - I think in both cases you'd ideally run the net a few times
+
 """network3.py
 ~~~~~~~~~~~~~~
 
