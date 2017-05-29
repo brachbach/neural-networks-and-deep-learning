@@ -48,7 +48,7 @@ from theano.tensor.signal import pool
 def linear(z): return z
 def ReLU(z): return T.maximum(0.0, z)
 from theano.tensor.nnet import sigmoid
-# from theano.tensor.nnet import relu
+# from theano.tensor.nnet import ReLU
 from theano.tensor import tanh
 
 
@@ -216,7 +216,7 @@ class ConvPoolLayer(object):
         n_out = (filter_shape[0]*np.prod(filter_shape[2:])/np.prod(poolsize))
         self.w = theano.shared(
             np.asarray(
-                np.random.normal(loc=0, scale=np.sqrt(1.0/n_out), size=filter_shape),
+                np.random.random(size=filter_shape),
                 dtype=theano.config.floatX),
             borrow=True)
         self.b = theano.shared(
@@ -247,8 +247,8 @@ class FullyConnectedLayer(object):
         # Initialize weights and biases
         self.w = theano.shared(
             np.asarray(
-                np.random.normal(
-                    loc=0.0, scale=np.sqrt(1.0/n_out), size=(n_in, n_out)),
+                np.random.random(
+                    size=(n_in, n_out)),
                 dtype=theano.config.floatX),
             name='w', borrow=True)
         self.b = theano.shared(
