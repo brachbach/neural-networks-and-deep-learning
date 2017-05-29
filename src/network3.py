@@ -126,6 +126,7 @@ class Network(object):
             [_get_accuracy(j) for j in xrange(num_batches)])
         print('accuracy on arbitrary data: {0:.2%}'.format(
             accuracy))
+        return accuracy
 
     def SGD(self, training_data, epochs, mini_batch_size, eta,
             validation_data, test_data, lmbda=0.0):
@@ -214,6 +215,8 @@ class Network(object):
                     print("Training mini-batch number {0}".format(iteration))
                 cost_ij = train_mb(minibatch_index)
                 if (iteration+1) % num_training_batches == 0:
+                    training_accuracy = self.get_accuracy()
+                    print(training_accuracy)
                     validation_accuracy = np.mean(
                         [validate_mb_accuracy(j) for j in xrange(num_validation_batches)])
                     print("Epoch {0}: validation accuracy {1:.2%}".format(
