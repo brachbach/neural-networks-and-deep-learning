@@ -216,7 +216,7 @@ class ConvPoolLayer(object):
         n_out = (filter_shape[0]*np.prod(filter_shape[2:])/np.prod(poolsize))
         self.w = theano.shared(
             np.asarray(
-                -1000000 * np.random.random(size=filter_shape),
+                0.5 * np.random.random(size=filter_shape),
                 dtype=theano.config.floatX),
             borrow=True)
         self.b = theano.shared(
@@ -247,7 +247,7 @@ class FullyConnectedLayer(object):
         # Initialize weights and biases
         self.w = theano.shared(
             np.asarray(
-                -1000000 * np.random.random(
+                0.5 * np.random.random(
                     size=(n_in, n_out)),
                 dtype=theano.config.floatX),
             name='w', borrow=True)
