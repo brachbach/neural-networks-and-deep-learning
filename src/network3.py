@@ -107,7 +107,7 @@ class Network(object):
 
     def get_accuracy(self, filename="../data/mnist.pkl.gz"):
         all_data = load_data_shared(filename)
-        arbitrary_data = all_data[2]
+        arbitrary_data = all_data[0]
         num_batches = size(arbitrary_data)/self.mini_batch_size
         arbitrary_x, arbitrary_y = arbitrary_data
         i = T.lscalar()
@@ -119,13 +119,10 @@ class Network(object):
                 self.y:
                 arbitrary_y[i*self.mini_batch_size: (i+1)*self.mini_batch_size]
             })
-        # accuracy = _get_accuracy(0)
         accuracy = np.mean(
             [_get_accuracy(j) for j in xrange(num_batches)])
-        print('accuracy!!!: {0:.2%}'.format(
+        print('accuracy on arbitrary data: {0:.2%}'.format(
             accuracy))
-        # print('The corresponding test accuracy is {0:.2%}'.format(
-        #     test_accuracy))
 
     def SGD(self, training_data, epochs, mini_batch_size, eta,
             validation_data, test_data, lmbda=0.0):
@@ -288,6 +285,7 @@ class ConvPoolLayer(object):
 class FullyConnectedLayer(object):
 
     def __init__(self, n_in, n_out, activation_fn=sigmoid, p_dropout=0.0):
+        print('ran fully connected init')
         self.n_in = n_in
         self.n_out = n_out
         self.activation_fn = activation_fn
@@ -324,6 +322,7 @@ class FullyConnectedLayer(object):
 class SoftmaxLayer(object):
 
     def __init__(self, n_in, n_out, p_dropout=0.0):
+        print('ran softmax init')
         self.n_in = n_in
         self.n_out = n_out
         self.p_dropout = p_dropout
@@ -352,7 +351,7 @@ class SoftmaxLayer(object):
     # basically just comparing what the layer spat out to what it was suppsoed
     # to spit out
     # 
-    # remember that in python ever method was that weird, dumb self param
+    # remember that in python ever method has that weird, dumb self param
     def accuracy(self, y):
         "Return the accuracy for the mini-batch."
         return T.mean(T.eq(y, self.y_out))
