@@ -91,6 +91,7 @@ class Network(object):
         by stochastic gradient descent.
 
         """
+        print('running network init')
         self.layers = layers
         self.mini_batch_size = mini_batch_size
         self.params = [param for layer in self.layers for param in layer.params]
@@ -114,8 +115,8 @@ class Network(object):
         _get_accuracy = theano.function(
             [i], self.layers[-1].accuracy(self.y),
             givens={
-                self.x:
-                arbitrary_x[i*self.mini_batch_size: (i+1)*self.mini_batch_size],
+                # self.x:
+                # arbitrary_x[i*self.mini_batch_size: (i+1)*self.mini_batch_size],
                 self.y:
                 arbitrary_y[i*self.mini_batch_size: (i+1)*self.mini_batch_size]
             })
