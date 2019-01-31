@@ -1,3 +1,9 @@
+# Note from Ben
+
+This is my fork of the exercise repo from the course.
+
+My work is in the various branches.
+
 # Code samples for "Neural Networks and Deep Learning"
 
 This repository contains code samples for my book on ["Neural Networks
